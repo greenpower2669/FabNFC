@@ -6,6 +6,9 @@ on:
       - feature/native-nfc-accessible-v1
     paths-ignore:
       - 'temp/**'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
