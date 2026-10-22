@@ -39,3 +39,10 @@
 - [x] `Workflow permissions` visible sur la capture : permissions par défaut en lecture. Le YAML du workflow contient déjà `permissions: contents: write` ; le choix de permission par défaut n'explique pas à lui seul l'absence totale de runs.
 - [x] Fab a demandé un commit de test créé par l'assistante sur la branche de travail, sans modifier `main` ; cette édition de `todo.md` est cet essai.
 - [ ] Après le commit, revérifier la liste des runs et `temp/`. Une absence de run après un commit via connecteur n'établit pas pourquoi le système ignore ses événements ; essayer un commit par l'éditeur web GitHub avec l'identité utilisateur si nécessaire.
+
+### Résultat du déclenchement par connecteur — preuve
+- [x] Commit de test effectivement créé dans la branche de travail : `044044a820d9a49ff32c25100c885bce88384655` (mise à jour du présent `todo.md`, sans `main`).
+- [x] Relecture du HEAD GitHub : correspond au commit de test.
+- [x] API GitHub Actions après écriture : `GET /actions/runs?per_page=30` → `total_count=0`; checks sur le SHA → `total_count=0`.
+- [x] `temp/FabNFC-v0.1.0-debug.apk` : absent (404). Il n'y a aucune preuve de compilation.
+- [ ] Si aucune exécution n'apparaît, poursuivre via déclenchement réalisé **par le navigateur GitHub ou Git classique avec l'identité utilisateur**, non par ce connecteur ; sinon, un workflow manuel nécessitera un fichier de workflow sur la branche par défaut, modification de `main` interdite sans accord explicite de Fab.
