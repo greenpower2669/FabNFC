@@ -35,7 +35,16 @@ jobs:
         run: gradle --no-daemon :app:testDebugUnitTest :app:assembleDebug
       - name: Verify debug APK
         run: test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Preserve compiled APK for CI diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: FabNFC-v0.1.0-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+      # PR checkouts may point at synthetic merge commits: never push them to the feature branch.
       - name: Place installable APK directly on working branch
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/feature/native-nfc-accessible-v1' }}
         run: |
           mkdir -p temp
           cp app/build/outputs/apk/debug/app-debug.apk temp/FabNFC-v0.1.0-debug.apk
