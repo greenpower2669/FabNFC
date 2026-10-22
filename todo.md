@@ -1,5 +1,20 @@
 # FabNFC — À faire / preuves
 
+## ÉTAT ACTUEL — APK debug DISPONIBLE (22/10/2026)
+- [x] Fab a autorisé la poursuite du plan d'amorçage sur `main`, sans fusion du code de l'application.
+- [x] Workflow d'amorçage minimal créé sur `main` : `.github/workflows/bootstrap-fabnfc.yml`, commit `56eea889fef1f385a76ff3b090d686cb08571f0e`. Le checkout et la compilation concernent **uniquement** `feature/native-nfc-accessible-v1`.
+- [x] Exécution GitHub Actions réelle n°`39847469389`, événement `push`, état final `completed/success` ; logs lus : `:app:testDebugUnitTest` puis `:app:assembleDebug`, `BUILD SUCCESSFUL in 47s`.
+- [x] Intégrité de l'APK contrôlée par `unzip -t` dans le workflow.
+- [x] Publication directe réussie, commit `4bafdac1e621a45b595b62d0dd0447d53f2eb536` : `temp/FabNFC-v0.1.0-debug.apk` (21 758 octets), et `.apk.sha256` (95 octets).
+- [x] Empreinte SHA-256 recalculée depuis les octets de l'APK récupérés par l'API GitHub et conforme au fichier publié : `615c69204ef51eebb3db529330e9315f900dc772633240c213a079cb6088bb3c`.
+- [x] APK direct : https://raw.githubusercontent.com/greenpower2669/FabNFC/feature/native-nfc-accessible-v1/temp/FabNFC-v0.1.0-debug.apk
+- [ ] **PRIORITÉ :** installer sur Samsung SM-A576B Android 16, tester scan NFC, UID recopiable, lecture vocale, sauvegarde persistante, réouverture, import/export, avec au moins deux badges.
+- [ ] Comparer les UID aux numéros visibles et demander à Lescuyer/AGESCA le nom de l'application et la méthode de récupération du « code provisoire ». Aucune transformation UID n'est garantie.
+- [ ] Aucune fusion sur `main` ou release finale tant que Fab n'a pas donné son accord spécifique.
+- [ ] Déprécations dans les logs Actions : `actions/setup-java@v4` et actions Node 20 forcées sur Node 24 ; planifier upgrade/test ultérieur, non bloquant.
+- [ ] Les observations « zéro run / zéro APK » plus bas sont l'historique **avant** le workflow d'amorçage et sont désormais résolues. 
+
+
 ## Fait dans la proposition de code 0.1.0
 - [x] Licence MIT sur main (commit `376e147328d3532d44c95f24de28519b18cdfa6d`).
 - [x] Branche `feature/native-nfc-accessible-v1`.

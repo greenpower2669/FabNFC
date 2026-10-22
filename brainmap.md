@@ -27,3 +27,10 @@ Impossible d'affirmer que l'UID exposé est le numéro de série imprimé ou le 
 - Après `gradle :app:testDebugUnitTest :app:assembleDebug` et `test -s`, `actions/upload-artifact@v4` conserve une copie diagnostic. Le fichier directement installable n'existe qu'après un push réussi dans `temp/`.
 - Le push de `temp/FabNFC-v0.1.0-debug.apk` et du SHA-256 ne fonctionne que pour `push` ou `workflow_dispatch` sur la référence exacte de la branche de travail. Une PR construit et teste **sans publier ni pousser son checkout de fusion temporaire**.
 - L'API GitHub `/actions/runs` a répondu avec `total_count=0` le 22/10/2026. Les droits effectifs du service GitHub Actions ne sont pas vérifiés : l'accès à son endpoint administratif est indisponible par le connecteur.
+
+## Amorçage de compilation sur main — opérationnel (22/10/2026)
+- Une seule configuration d'amorçage a été ajoutée sur la branche par défaut `main` : `.github/workflows/bootstrap-fabnfc.yml` (commit `56eea889`). Aucun code Android ni historique métier n'a été fusionné sur `main`.
+- Événements de cet amorçage : `workflow_dispatch` (lancement manuel possible depuis GitHub) et `push` sur `main` limité au chemin du workflow. Il ne crée pas de release ni de merge.
+- Le job `build-feature` fait `checkout` de `feature/native-nfc-accessible-v1`, installe Java 17 / Gradle 8.10.2, lance `gradle :app:testDebugUnitTest :app:assembleDebug`, vérifie un APK non vide et l'intégrité ZIP, puis conserve un artefact CI et copie un APK direct + son SHA-256 dans `temp/` sur **la branche de travail uniquement**.
+- **Preuve** : run `39847469389` : `completed/success`, commit d'APK `4bafdac1`, taille 21 758 octets ; SHA-256 vérifié indépendamment `615c69204ef51eebb3db529330e9315f900dc772633240c213a079cb6088bb3c`.
+- Le workflow d'amorçage sert aussi de secours si la CI native de branche ne se lance pas. La raison exacte de l'absence des runs de branche initiaux **n'est pas démontrée** ; le déclenchement via nouveau fichier sur la branche par défaut a fonctionné.

@@ -15,7 +15,10 @@
 **Statut : implémenté en branche, tests Android à faire.** Sauvegarde locale automatique de l'historique, export/import de fichiers de sauvegarde.
 
 ## FABNFC-004 — MIT / APK (Fab, 22/10/2026)
-**Statut : MIT créé sur main; CI APK configurée, résultat à vérifier.** Licence MIT, build Android et APK direct disponible pour téléphone sans ZIP. Publication main/release finale soumise à accord.
+**Statut : APK debug livré sur la branche, compilation et tests unitaires validés par GitHub Actions n°39847469389 ; test sur Samsung à effectuer.** Licence MIT, build Android et APK direct disponible pour téléphone sans ZIP. Publication main/release finale soumise à accord.
 
 ## Point extérieur bloquant
 Lescuyer/AGESCA n'a pas indiqué le nom de l'application NFC requise ni le format du « code provisoire ». Ne jamais dire que l'UID brut est ce code.
+
+## FABNFC-005 — Déblocage GitHub Actions (Fab, 22/10/2026)
+**Statut : livré techniquement, à tester sur téléphone.** À la suite de l'accord « Cool continu », ajout sur `main` d'un seul workflow d'amorçage sans fusionner l'application ; il compile exclusivement `feature/native-nfc-accessible-v1` et publie l'APK direct dans `temp/` de cette branche. Exécution GitHub n°39847469389 : succès, tests et assemblage validés. Aucun merge de la PR n°1.

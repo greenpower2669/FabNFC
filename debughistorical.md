@@ -17,3 +17,12 @@
 - Le commit `7e69d7ad0044c0228ecbd80e1d21096c4595d2b6` contient effectivement le garde-fou de publication ; l'API globale `/actions/runs` renvoie toujours zéro ; l'API `/commits/{sha}/check-runs` renvoie zéro ; `temp/` reste absent.
 - GitHub documente que les événements déclenchés par le `GITHUB_TOKEN` d'un workflow ne créent généralement pas de nouveau run (hors exceptions). Le type de jeton employé par le connecteur lors des commits **n'a pas été confirmé** : cette règle est une piste, pas une cause prouvée.
 - Demande de contrôle humain circonscrite : réglages des Actions du dépôt et relance d'un push via l'interface ou un client Git autorisé. Pas de fusion sur `main`, aucune promesse de fichier APK tant que le résultat binaire n'a pas été inspecté.
+
+## 2026-10-22 — Déblocage réel et build Android vérifié
+- Fab a autorisé la continuation de la solution présentée : workflow d'amorçage léger sur `main`, sans fusion de l'application. Commit `56eea889fef1f385a76ff3b090d686cb08571f0e`.
+- L'ajout de ce workflow sur `main` a **réellement** déclenché un run `push`, ID `39847469389`, statut final `completed/success`. Le job a téléchargé la branche de travail `feature/native-nfc-accessible-v1` et non l'application sur `main`.
+- Logs consultés : `:app:testDebugUnitTest` et `:app:assembleDebug` terminés, `BUILD SUCCESSFUL in 47s`; vérification `unzip -t` réussie ; publication directe de l'APK via `git push` confirmée.
+- Chemin `temp/FabNFC-v0.1.0-debug.apk`, taille 21 758 octets ; SHA-256 recalculé depuis la réponse base64 GitHub `615c69204ef51eebb3db529330e9315f900dc772633240c213a079cb6088bb3c`, identique au fichier `.sha256`.
+- Commit de publication sur branche de travail : `4bafdac1e621a45b595b62d0dd0447d53f2eb536`. L'APK est un **debug**, jamais testé sur NFC matériel pour le moment ; le code provisoire AGESCA reste non identifié.
+- Des avertissements non bloquants liés à la dépréciation de certaines actions Node 20 / setup-java@v4 figurent dans le log ; mise à jour à prévoir.
+- Hypothèse sur les événements du connecteur : non démontrée. Le succès de l'amorçage prouve qu'Actions fonctionnait au moins pour cet événement GitHub sur `main`.
