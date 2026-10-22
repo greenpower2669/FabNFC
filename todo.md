@@ -8,7 +8,7 @@
 - [x] Gradle, CI APK debug direct `temp/FabNFC-v0.1.0-debug.apk`, tests unitaires de conversion.
 
 ## Vérification à effectuer
-- [ ] **Bloquant au 22/10** : l'API GitHub indique `total_count: 0` dans les runs Actions du dépôt, après commit du workflow, push de branche et création PR #1. Vérifier Actions → General (autorisation des workflows / approbation éventuelle), puis déclencher une compilation. Aucun APK confirmé dans `temp/`; ne donner aucun lien d'installation avant preuve.
+- [ ] **Bloquant au 22/10 soir** : aucun build GitHub Actions confirmé. Le workflow `.github/workflows/build-android.yml` existe uniquement sur `feature/native-nfc-accessible-v1`; nouveau push diagnostic `6ed0015c5423739799f2a2bf837c26c28b3cf0f2`, mais aucun run `pull_request` ni statut de commit retourné par les connecteurs. Le connecteur des runs filtre `pull_request` et ne prouve donc pas l'absence d'un run `push`. Vérifier personnellement `Settings → Actions → General` et `Actions` pour l'état complet. **Important :** `workflow_dispatch` (bouton Run workflow) exige que le workflow existe sur la branche par défaut `main`; pas de modification de `main` sans accord explicite. Aucun APK confirmé dans `temp/`; ne donner aucun lien d'installation avant preuve.
 - [ ] Installer et tester sur Samsung Android 16 : NFC et affichage, lecture vocale, clavier, copie, différences d'ordre, import/export puis redémarrage.
 - [ ] Vérifier plusieurs lectures d'un même badge et examiner la stabilité de l'UID.
 - [ ] Demander à Agesca l'application et la correspondance avec « code provisoire »; l'appli ne sait pas le fabriquer.
