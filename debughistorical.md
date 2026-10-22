@@ -12,3 +12,8 @@
 - **Vrai défaut préventivement corrigé** : le workflow pouvait tenter de pousser le HEAD synthétique d'une PR vers la branche de développement. Publication conditionnée aux événements de branche adaptés ; conservation d'un artefact de diagnostic après compilation.
 - **Non testé** : compilation Android réelle, logs, installation et lecture NFC. L'environnement local n'a pas de SDK Android ni de Gradle et n'a pas pu joindre les distributions Gradle (DNS).
 - **Contrôle à effectuer** : observer le résultat de la nouvelle écriture sur branche dans GitHub Actions ; si aucun run, inspection humaine `Settings → Actions → General`, sans toucher à `main`.
+
+### Vérification du correctif poussé (même soirée)
+- Le commit `7e69d7ad0044c0228ecbd80e1d21096c4595d2b6` contient effectivement le garde-fou de publication ; l'API globale `/actions/runs` renvoie toujours zéro ; l'API `/commits/{sha}/check-runs` renvoie zéro ; `temp/` reste absent.
+- GitHub documente que les événements déclenchés par le `GITHUB_TOKEN` d'un workflow ne créent généralement pas de nouveau run (hors exceptions). Le type de jeton employé par le connecteur lors des commits **n'a pas été confirmé** : cette règle est une piste, pas une cause prouvée.
+- Demande de contrôle humain circonscrite : réglages des Actions du dépôt et relance d'un push via l'interface ou un client Git autorisé. Pas de fusion sur `main`, aucune promesse de fichier APK tant que le résultat binaire n'a pas été inspecté.

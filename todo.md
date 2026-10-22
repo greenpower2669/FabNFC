@@ -26,7 +26,9 @@
 - [x] Le workflow est absent de `main` : le déclenchement manuel `workflow_dispatch` n'est pas utilisable comme solution autonome tant que le fichier manque sur la branche par défaut.
 - [x] Risque réel corrigé dans la configuration : ne jamais exécuter `git push` après un checkout de PR (commit de fusion temporaire). Publication restreinte au `push` ou `workflow_dispatch` sur la branche de travail.
 - [x] Ajout de `upload-artifact@v4` après vérification de l'APK pour conserver un témoin de compilation dans Actions, même si la publication directe échoue ; **ce témoin est une archive GitHub Actions, et non le livrable direct souhaité**.
-- [ ] Vérifier le nouveau HEAD et si un run `push` démarre à la suite du présent commit, puis lire ses jobs/logs.
+- [x] Le correctif de workflow a été poussé au commit `7e69d7ad0044c0228ecbd80e1d21096c4595d2b6` et son contenu a été relu via `fetch_file`.
+- [x] Immédiatement après ce push, `GET /actions/runs` : zéro exécution ; `GET /commits/7e69d7ad.../check-runs` : zéro check ; `temp/` reste absent (404).
+- [ ] **Prochaine dépendance bloquante** : inspecter `Settings → Actions → General` dans le navigateur connecté à GitHub et vérifier si les workflows sont autorisés ; ensuite provoquer un événement `push` depuis l'interface GitHub ou Git classique sur la branche de travail, car le mécanisme de publication par le connecteur peut ne pas déclencher d'Actions. Lire alors les logs et compiler.
 - [ ] Les paramètres réels `Settings → Actions → General` restent **non vérifiés** : l'API de lecture des autorisations Actions est refusée par le connecteur (endpoint non pris en charge). Ne pas conclure qu'Actions est désactivé sans cette vérification.
 - [ ] Si toujours zéro run, faire vérifier dans GitHub par Fab : Actions activées, autorisation des actions tierces `actions/*` et `gradle/actions/*`, puis relancer via nouveau commit sur la branche de travail (sans fusion).
 - [ ] Confirmer fichier réel, taille, SHA-256, résultat Gradle et accessibilité de l'URL `temp/FabNFC-v0.1.0-debug.apk` avant livraison.
