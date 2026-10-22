@@ -1,0 +1,56 @@
+name: FabNFC Android debug
+
+on:
+  push:
+    branches:
+      - feature/native-nfc-accessible-v1
+    paths-ignore:
+      - 'temp/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Diagnostic CI event
+        run: echo "CI event=${{ github.event_name }}, ref=${{ github.ref }}"
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Compile and unit test
+        run: gradle --no-daemon :app:testDebugUnitTest :app:assembleDebug
+      - name: Verify debug APK
+        run: test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Preserve compiled APK for CI diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: FabNFC-v0.1.0-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+      # PR checkouts may point at synthetic merge commits: never push them to the feature branch.
+      - name: Place installable APK directly on working branch
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/feature/native-nfc-accessible-v1' }}
+        run: |
+          mkdir -p temp
+          cp app/build/outputs/apk/debug/app-debug.apk temp/FabNFC-v0.1.0-debug.apk
+          sha256sum temp/FabNFC-v0.1.0-debug.apk > temp/FabNFC-v0.1.0-debug.apk.sha256
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add temp/FabNFC-v0.1.0-debug.apk temp/FabNFC-v0.1.0-debug.apk.sha256
+          git diff --cached --quiet || git commit -m 'ci: publier APK debug directement dans temp'
+          git push origin HEAD:feature/native-nfc-accessible-v1
