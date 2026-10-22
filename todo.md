@@ -33,3 +33,9 @@
 - [ ] Si toujours zéro run, faire vérifier dans GitHub par Fab : Actions activées, autorisation des actions tierces `actions/*` et `gradle/actions/*`, puis relancer via nouveau commit sur la branche de travail (sans fusion).
 - [ ] Confirmer fichier réel, taille, SHA-256, résultat Gradle et accessibilité de l'URL `temp/FabNFC-v0.1.0-debug.apk` avant livraison.
 - [ ] Aucun SDK Android / Gradle local accessible dans l'environnement d'exécution de ce diagnostic ; tentative d'accès externe à Gradle échouée (résolution DNS). Aucune compilation locale attestée.
+
+## Essai de déclenchement demandé par Fab — 22/10/2026
+- [x] Capture GitHub `Settings → Actions → General` fournie par Fab : `Allow all actions and reusable workflows` est sélectionné. La désactivation générale des Actions n'explique donc pas le blocage observé.
+- [x] `Workflow permissions` visible sur la capture : permissions par défaut en lecture. Le YAML du workflow contient déjà `permissions: contents: write` ; le choix de permission par défaut n'explique pas à lui seul l'absence totale de runs.
+- [x] Fab a demandé un commit de test créé par l'assistante sur la branche de travail, sans modifier `main` ; cette édition de `todo.md` est cet essai.
+- [ ] Après le commit, revérifier la liste des runs et `temp/`. Une absence de run après un commit via connecteur n'établit pas pourquoi le système ignore ses événements ; essayer un commit par l'éditeur web GitHub avec l'identité utilisateur si nécessaire.
