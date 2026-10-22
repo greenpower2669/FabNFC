@@ -1,0 +1,71 @@
+name: FabNFC - Compiler APK test
+
+# This file lives on main only to expose the manual Actions button.
+# Every build checks out the independent feature branch; no application merge.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/bootstrap-fabnfc.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fabnfc-test-apk
+  cancel-in-progress: false
+
+jobs:
+  build-feature:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout the FabNFC development branch (not main)
+        uses: actions/checkout@v4
+        with:
+          ref: feature/native-nfc-accessible-v1
+          persist-credentials: true
+
+      - name: Prepare Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare Gradle 8.10.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Test and compile debug APK
+        run: gradle --no-daemon :app:testDebugUnitTest :app:assembleDebug
+
+      - name: Verify APK is not empty and is a readable archive
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          unzip -t app/build/outputs/apk/debug/app-debug.apk >/dev/null
+
+      - name: Archive build evidence (not the direct Android download)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FabNFC-v0.1.0-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish direct installable APK to working branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p temp
+          cp app/build/outputs/apk/debug/app-debug.apk temp/FabNFC-v0.1.0-debug.apk
+          sha256sum temp/FabNFC-v0.1.0-debug.apk > temp/FabNFC-v0.1.0-debug.apk.sha256
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add temp/FabNFC-v0.1.0-debug.apk temp/FabNFC-v0.1.0-debug.apk.sha256
+          if ! git diff --cached --quiet; then
+            git commit -m 'ci: ajouter APK FabNFC v0.1.0 debug dans temp'
+            git push origin HEAD:feature/native-nfc-accessible-v1
+          fi
