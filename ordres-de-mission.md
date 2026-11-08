@@ -27,3 +27,9 @@ Lescuyer/AGESCA n'a pas indiqué le nom de l'application NFC requise ni le forma
 ## FABNFC-006 — Double support APK + Web hors ligne (demande Fab, 08/11/2026)
 Mandat : reprendre FabNFC, conserver l'application Android APK et produire une version web téléchargeable, installable si hébergée en HTTPS, utilisable localement. Les deux supports échangent leurs sauvegardes sans confondre leurs capacités NFC.
 État : prototype web et tests locaux disponibles sur la branche feature/offline-webapp-v1 ; essais matériels et hébergement HTTPS à confirmer. L'APK v0.1.0 existe déjà. Ne pas confondre branche, fusion main et Release officielle.
+
+
+## FABNFC-007 — Publication Release des deux versions (Fab, 08/11/2026)
+**Statut : prérelease publiée et assets vérifiés via GitHub API.** Fab a explicitement demandé de mettre APK et Web App en Release. Prérelease `fabnfc-v0.2.0-preview`, run Actions réussi n° `42478554802`, quatre assets réels : APK debug 0.1.0, HTML autonome 0.2.0, ZIP PWA et SHA256SUMS.txt.
+Lien : https://github.com/greenpower2669/FabNFC/releases/tag/fabnfc-v0.2.0-preview
+Publication depuis commit épinglé de branche Web `2fd226d4`. Un workflow est ajouté sur `main` pour distribuer sans fusionner le code de l'application. L'APK natif demeure un build debug et le fonctionnement NFC sur Samsung, l'installation PWA via HTTPS et les sauvegardes croisées restent à tester.
