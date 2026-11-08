@@ -22,3 +22,8 @@ Lescuyer/AGESCA n'a pas indiqué le nom de l'application NFC requise ni le forma
 
 ## FABNFC-005 — Déblocage GitHub Actions (Fab, 22/10/2026)
 **Statut : livré techniquement, à tester sur téléphone.** À la suite de l'accord « Cool continu », ajout sur `main` d'un seul workflow d'amorçage sans fusionner l'application ; il compile exclusivement `feature/native-nfc-accessible-v1` et publie l'APK direct dans `temp/` de cette branche. Exécution GitHub n°39847469389 : succès, tests et assemblage validés. Aucun merge de la PR n°1.
+
+
+## FABNFC-006 — Double support APK + Web hors ligne (demande Fab, 08/11/2026)
+Mandat : reprendre FabNFC, conserver l'application Android APK et produire une version web téléchargeable, installable si hébergée en HTTPS, utilisable localement. Les deux supports échangent leurs sauvegardes sans confondre leurs capacités NFC.
+État : prototype web et tests locaux disponibles sur la branche feature/offline-webapp-v1 ; essais matériels et hébergement HTTPS à confirmer. L'APK v0.1.0 existe déjà. Ne pas confondre branche, fusion main et Release officielle.
