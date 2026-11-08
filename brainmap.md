@@ -34,3 +34,10 @@ Impossible d'affirmer que l'UID exposé est le numéro de série imprimé ou le 
 - Le job `build-feature` fait `checkout` de `feature/native-nfc-accessible-v1`, installe Java 17 / Gradle 8.10.2, lance `gradle :app:testDebugUnitTest :app:assembleDebug`, vérifie un APK non vide et l'intégrité ZIP, puis conserve un artefact CI et copie un APK direct + son SHA-256 dans `temp/` sur **la branche de travail uniquement**.
 - **Preuve** : run `39847469389` : `completed/success`, commit d'APK `4bafdac1`, taille 21 758 octets ; SHA-256 vérifié indépendamment `615c69204ef51eebb3db529330e9315f900dc772633240c213a079cb6088bb3c`.
 - Le workflow d'amorçage sert aussi de secours si la CI native de branche ne se lance pas. La raison exacte de l'absence des runs de branche initiaux **n'est pas démontrée** ; le déclenchement via nouveau fichier sur la branche par défaut a fonctionné.
+
+
+## FABNFC-006 — Web app locale / PWA (08/11/2026)
+- Branche feature/offline-webapp-v1 depuis feature/native-nfc-accessible-v1 ; code Android et APK v0.1.0 préservés.
+- webapp/FabNFC-Web-hors-ligne.html : HTML/CSS/JS autonome, quatre conversions BigInt, Web NFC NDEFReader si disponible, UI accessible, copie, voix, fiches et JSON compatible.
+- webapp/manifest.webmanifest, webapp/sw.js, webapp/icon.svg, webapp/icon-192.png, webapp/icon-512.png : ressources PWA, mise en cache, installation HTTPS à vérifier.
+- webapp/README.md : usage sans réseau, limites Web NFC et plan de tests. En file://, pas de scan NFC.
