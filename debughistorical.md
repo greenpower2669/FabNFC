@@ -26,3 +26,9 @@
 - Commit de publication sur branche de travail : `4bafdac1e621a45b595b62d0dd0447d53f2eb536`. L'APK est un **debug**, jamais testé sur NFC matériel pour le moment ; le code provisoire AGESCA reste non identifié.
 - Des avertissements non bloquants liés à la dépréciation de certaines actions Node 20 / setup-java@v4 figurent dans le log ; mise à jour à prévoir.
 - Hypothèse sur les événements du connecteur : non démontrée. Le succès de l'amorçage prouve qu'Actions fonctionnait au moins pour cet événement GitHub sur `main`.
+
+
+## 2026-11-08 — FABNFC-006 : vérifications limitées
+- Web app autonome développée séparément du code natif. Dix contrôles JS exécutés avec Node et réussis (conversions UID, validation d'import, rejet des doublons, ajout) ; syntaxe du JS et du service worker vérifiée.
+- Non prouvé : NFC matériel en navigateur, installation de PWA, scan en mode avion, compatibilité avec les badges Vigik. Web NFC NDEF ne remplace pas Reader Mode Android.
+- Un fichier HTML en local permet les fiches, mais n'assure pas le stockage permanent sur tous navigateurs et n'autorise pas le scan Web NFC depuis file://.
