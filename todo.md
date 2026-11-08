@@ -1,3 +1,15 @@
+## NOUVEAU — FABNFC-006 / Web hors ligne (08/11/2026)
+- [x] Créer la version HTML autonome et la PWA séparée, sans altérer le code de l'APK native.
+- [x] Implémenter quatre conversions UID, fiches locales, import/export JSON schema=1, copies, voix, contrôles d'import, Web NFC NDEF seulement.
+- [x] Réaliser 10 contrôles JavaScript locaux via Node (conversions, validation, import, ajout).
+- [x] Publier les sept fichiers de la web app sur feature/offline-webapp-v1 (commit d8faf9ff).
+- [ ] Configurer l'hébergement HTTPS et vérifier SW, installation et fonctionnement en mode avion sur Samsung.
+- [ ] Tester Web NFC avec tag NDEF et constater les limitations Vigik ; comparer UID à l'APK native.
+- [ ] Tester transfert JSON dans les deux sens entre web et Android.
+- [ ] Tester l'APK native existante sur Samsung Android.
+- [ ] Conserver main, PR native #1 et APK existante intacts jusqu'à décision explicite de fusion/release ; aucune nouvelle APK sans build validé.
+
+
 # FabNFC — À faire / preuves
 
 ## ÉTAT ACTUEL — APK debug DISPONIBLE (22/10/2026)
