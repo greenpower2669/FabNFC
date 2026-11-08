@@ -9,3 +9,10 @@ Fab veut scanner lui-même ses badges NFC dont le numéro imprimé est effacé, 
 - Backup JSON schema=1 limité à 500 badges / 1Mo, import sans effacer; export avec le sélecteur Android.
 - Voix TextToSpeech français, annonces lors du scan et des confirmations. Pas d'accès internet ni transfert externe automatique.
 - Prototype sans test physique; avertir que certains badges changent d'UID ou ne sont pas compatibles.
+
+
+## FABNFC-006 — Deux supports distincts (08/11/2026)
+- Préserver l'APK Android native et ajouter une version web autonome + PWA hors ligne sans régression dans le scanner Android.
+- Le fichier HTML local offre conversions, historique, copies, voix, export/import sans réseau ; le scan Web NFC exige HTTPS (ou localhost), navigateur compatible et tag NDEF accessible.
+- Web NFC ne couvre pas tous les badges Vigik ni les commandes natives, et l'UID ne prouve pas le code provisoire AGESCA.
+- Import/export JSON bidirectionnel schema=1, limites 500 badges et 1 Mo, données navigateur en clair avec avertissement.

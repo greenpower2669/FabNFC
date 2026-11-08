@@ -1,3 +1,26 @@
+## FABNFC-007 — Release Android + Web (08/11/2026)
+- [x] Publier la prérelease `fabnfc-v0.2.0-preview` sur GitHub depuis le commit web `2fd226d4e29fa4e910089366773073f0bda38754`.
+- [x] Vérifier la réussite d'Actions run `42478554802` (completed/success) et les quatre assets de Release.
+- [x] APK directement téléchargeable `FabNFC-v0.1.0-debug.apk` (21 758 octets), HTML `FabNFC-Web-v0.2.0-hors-ligne.html` (15 677 octets), PWA ZIP (12 633 octets), SHA256SUMS.txt (282 octets).
+- [x] Vérifier les noms, tailles non nulles et URLs d'assets avec l'API GitHub Releases ; intégrité APK vérifiée dans Actions (sha256sum et unzip -t).
+- [ ] Tester l'installation APK, la lecture de badge et les sauvegardes sur Samsung Android.
+- [ ] Déployer la PWA sur HTTPS et vérifier installation/service worker/scan NDEF hors réseau.
+- [ ] Aucune fusion dans main ; l'unique ajout sur main est le workflow de publication `.github/workflows/publish-fabnfc-release.yml` (commit `b38f0de373efddf4af02f03f647d7d9b3b2ae277`).
+- Release : https://github.com/greenpower2669/FabNFC/releases/tag/fabnfc-v0.2.0-preview
+
+
+## NOUVEAU — FABNFC-006 / Web hors ligne (08/11/2026)
+- [x] Créer la version HTML autonome et la PWA séparée, sans altérer le code de l'APK native.
+- [x] Implémenter quatre conversions UID, fiches locales, import/export JSON schema=1, copies, voix, contrôles d'import, Web NFC NDEF seulement.
+- [x] Réaliser 10 contrôles JavaScript locaux via Node (conversions, validation, import, ajout).
+- [x] Publier les sept fichiers de la web app sur feature/offline-webapp-v1 (commit d8faf9ff).
+- [ ] Configurer l'hébergement HTTPS et vérifier SW, installation et fonctionnement en mode avion sur Samsung.
+- [ ] Tester Web NFC avec tag NDEF et constater les limitations Vigik ; comparer UID à l'APK native.
+- [ ] Tester transfert JSON dans les deux sens entre web et Android.
+- [ ] Tester l'APK native existante sur Samsung Android.
+- [ ] Conserver main, PR native #1 et APK existante intacts jusqu'à décision explicite de fusion/release ; aucune nouvelle APK sans build validé.
+
+
 # FabNFC — À faire / preuves
 
 ## ÉTAT ACTUEL — APK debug DISPONIBLE (22/10/2026)
