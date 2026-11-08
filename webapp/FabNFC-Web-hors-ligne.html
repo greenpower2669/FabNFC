@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c2637">
+<meta name="description" content="FabNFC Web : lecture NDEF compatible, historique local et sauvegardes hors ligne.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>FabNFC Web — local et hors ligne</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#0c2637;background:#f4f8fa;line-height:1.5;color-scheme:light}
+*{box-sizing:border-box}body{margin:0}main{max-width:780px;margin:auto;padding:16px 16px 48px}header,section{background:#fff;border:2px solid #d5e4e8;border-radius:16px;padding:18px;margin:0 0 16px}header{background:#0c2637;color:#fff}h1{font-size:2rem;margin:.1em 0}.subtitle{font-size:1.07rem;margin:0 0 1em}h2{font-size:1.35rem;margin:.1em 0 .6em}p{margin:.45em 0 .85em}.note{font-size:1rem}.warn{background:#fff7e5;border-left:5px solid #b87300;padding:12px;color:#523900}button,input{font:inherit}button{min-height:54px;border:0;border-radius:10px;background:#006752;color:#fff;padding:10px 16px;font-size:1.04rem;font-weight:650;cursor:pointer;margin:4px 5px 6px 0}button.secondary{background:#0c2637}button:disabled{background:#657883;cursor:not-allowed}button:focus-visible,input:focus-visible{outline:4px solid #b87300;outline-offset:2px}input[type=text]{width:100%;padding:12px;border:2px solid #48616b;border-radius:10px;font-size:1.12rem;margin:5px 0}input[type=file]{max-width:100%;margin:10px 0}.status{background:#def4e8;border:2px solid #006752;color:#063c33;border-radius:10px;font-size:1.12rem;font-weight:650;padding:12px;min-height:54px}.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}.format{background:#eaf8f2;padding:12px;border-radius:10px;overflow-wrap:anywhere}.format strong{display:block;font-size:.97rem}.format output{display:block;font-size:1.5rem;font-weight:700;letter-spacing:.02em;margin:6px 0}.history{display:grid;gap:8px}.history button{display:block;width:100%;text-align:left;background:#eaf8f2;color:#0c2637;border:2px solid #006752;overflow-wrap:anywhere}.history button[aria-current=true]{background:#006752;color:#fff}small{font-size:.92rem}.actions{display:flex;flex-wrap:wrap;gap:4px}#install{display:none}#stopScan{display:none}@media(min-width:620px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(prefers-reduced-motion:no-preference){button{transition:filter .12s}button:hover{filter:brightness(1.12)}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>📶 FabNFC Web</h1>
+<p class="subtitle">Gestion locale de badges — lecture seule, sans compte ni transfert automatique.</p>
+<div id="status" class="status" role="status" aria-live="polite">Prêt. Les données restent sur cet appareil.</div>
+</header>
+<section aria-labelledby="scanHeading">
+<h2 id="scanHeading">Lecture NFC</h2>
+<p class="warn"><strong>Limite navigateur :</strong> seules certaines étiquettes NDEF sont accessibles avec Web NFC. Les badges d'immeuble/Vigik non compatibles doivent être lus avec l'APK Android native. Le numéro lu n'est pas nécessairement le code demandé par le gestionnaire.</p>
+<div class="actions"><button id="startScan" type="button">Démarrer la lecture NFC</button><button id="stopScan" class="secondary" type="button">Arrêter la lecture</button><button id="install" class="secondary" type="button">Installer l'application</button></div>
+<p id="scanHelp" class="note"></p>
+</section>
+<section aria-labelledby="manualHeading">
+<h2 id="manualHeading">Ajouter un UID déjà connu</h2>
+<label for="manualHex">UID hexadécimal (2 à 64 caractères, longueur paire)</label>
+<input id="manualHex" type="text" autocomplete="off" spellcheck="false" placeholder="Exemple : 04A1B2C3" maxlength="95">
+<button id="addManual" type="button">Ajouter cet identifiant</button>
+<p class="note">Cette saisie permet de classer des UID lus par l'APK ; elle n'effectue aucune lecture de badge.</p>
+</section>
+<section aria-labelledby="uidHeading">
+<h2 id="uidHeading">Identifiant sélectionné</h2>
+<p id="selectedName"><strong>Aucun badge sélectionné</strong></p>
+<label for="badgeName">Nom du badge</label>
+<input id="badgeName" type="text" maxlength="80" placeholder="Badge d'entrée">
+<button id="saveName" type="button">Enregistrer le nom</button>
+<div class="grid" id="formats">
+<div class="format"><strong>1. UID HEX — ordre lu</strong><output id="hex">—</output><button data-copy="hex" type="button">Copier HEX</button></div>
+<div class="format"><strong>2. UID décimal — ordre lu</strong><output id="decimal">—</output><button data-copy="decimal" type="button">Copier décimal</button></div>
+<div class="format"><strong>3. HEX — octets inversés</strong><output id="reverseHex">—</output><button data-copy="reverseHex" type="button">Copier HEX inversé</button></div>
+<div class="format"><strong>4. Décimal — octets inversés</strong><output id="reverseDecimal">—</output><button data-copy="reverseDecimal" type="button">Copier décimal inversé</button></div>
+</div>
+<div class="actions"><button id="copyAll" type="button">Copier les quatre formats</button><button id="speak" class="secondary" type="button">🔊 Écouter</button></div>
+</section>
+<section aria-labelledby="backupHeading">
+<h2 id="backupHeading">Sauvegardes et confidentialité</h2>
+<div class="actions"><button id="export" type="button">Exporter en JSON</button></div>
+<label for="import">Importer un fichier JSON FabNFC (1 Mo maximum)</label>
+<input id="import" type="file" accept=".json,application/json">
+<p class="warn">Les identifiants de badges sont enregistrés en clair dans le navigateur et dans les exports JSON. Protège ces fichiers. Effacer les données du navigateur peut supprimer cet historique : exporte-le régulièrement.</p>
+</section>
+<section aria-labelledby="historyHeading">
+<h2 id="historyHeading">Historique local (<span id="count">0</span>)</h2>
+<div id="history" class="history"><p>Aucun badge enregistré.</p></div>
+<button id="erase" class="secondary" type="button">Effacer tout l'historique</button>
+</section>
+<small>FabNFC Web v0.2.0 — import/export compatible avec la sauvegarde JSON schema=1 de FabNFC Android. Une page HTML ouverte depuis le disque reste utilisable pour les fiches et les sauvegardes, mais le scan Web NFC exige une origine sécurisée HTTPS (ou localhost) et un navigateur compatible.</small>
+</main>
+<script>
+(function(){
+'use strict';
+const STORAGE='fabnfc-web-schema1';
+const MAX_BYTES=1048576,MAX_BADGES=500;
+const $=id=>document.getElementById(id);
+let entries=[], selected=null, reader=null, aborter=null, installEvent=null, persist=true;
+function state(message){$('status').textContent=message;}
+function uid(raw){
+ if(typeof raw!=='string')throw Error('UID invalide');
+ const compact=raw.replace(/[:\s-]/g,'').toUpperCase();
+ if(!/^[0-9A-F]{2,64}$/.test(compact)||compact.length%2)throw Error('UID hexadécimal invalide (1 à 32 octets)');
+ return compact;
+}
+function four(hex){
+ const clean=uid(hex),pairs=clean.match(/.{2}/g),rev=pairs.slice().reverse().join('');
+ return {hex:clean,decimal:BigInt('0x'+clean).toString(10),reverseHex:rev,reverseDecimal:BigInt('0x'+rev).toString(10)};
+}
+function backup(){return {schema:1,application:'FabNFC',badges:entries.map(e=>({uidHex:e.uidHex,label:e.label,seenAt:e.seenAt}))};}
+function parse(text){
+ if(new TextEncoder().encode(text).length>MAX_BYTES)throw Error('Fichier supérieur à 1 Mo');
+ const root=JSON.parse(text);
+ if(!root||root.schema!==1||!Array.isArray(root.badges)||root.badges.length>MAX_BADGES)throw Error('Schéma de sauvegarde incompatible');
+ const seen=new Set();
+ return root.badges.map(x=>{
+   if(!x||typeof x.label!=='string'||x.label.length<1||x.label.length>80||!Number.isSafeInteger(x.seenAt)||x.seenAt<0)throw Error('Badge invalide dans la sauvegarde');
+   const clean=uid(x.uidHex);if(seen.has(clean))throw Error('UID en double dans le fichier');seen.add(clean);
+   return {uidHex:clean,label:x.label,seenAt:x.seenAt};
+ });
+}
+function persistEntries(){
+ if(!persist)return;
+ try{localStorage.setItem(STORAGE,JSON.stringify(backup()));}
+ catch(e){persist=false;state('Stockage du navigateur indisponible. Exporte une sauvegarde JSON avant de quitter.');}
+}
+function restore(){
+ try{const raw=localStorage.getItem(STORAGE);if(raw)entries=parse(raw);}
+ catch(e){persist=false;entries=[];state('Stockage local indisponible ou endommagé : importe ta sauvegarde JSON si nécessaire.');}
+}
+function render(){
+ $('count').textContent=String(entries.length);
+ const box=$('history');box.replaceChildren();
+ if(!entries.length){const p=document.createElement('p');p.textContent='Aucun badge enregistré.';box.append(p);}
+ for(const e of entries){
+  const b=document.createElement('button');b.type='button';b.textContent=e.label+' — '+new Date(e.seenAt).toLocaleString('fr-FR');
+  if(selected&&selected.uidHex===e.uidHex)b.setAttribute('aria-current','true');
+  b.addEventListener('click',()=>select(e.uidHex));box.append(b);
+ }
+ const entry=selected&&entries.find(e=>e.uidHex===selected.uidHex);
+ selected=entry||null;
+ $('selectedName').textContent=entry?entry.label:'Aucun badge sélectionné';
+ $('badgeName').value=entry?entry.label:'';
+ const values=entry?four(entry.uidHex):{};
+ for(const key of ['hex','decimal','reverseHex','reverseDecimal'])$(key).textContent=values[key]||'—';
+}
+function select(hex){selected=entries.find(e=>e.uidHex===hex)||null;render();}
+function add(hex,source){
+ const clean=uid(hex),now=Date.now();let found=entries.find(e=>e.uidHex===clean);
+ if(found){found.seenAt=now;entries=entries.filter(e=>e!==found);entries.unshift(found);}
+ else {if(entries.length>=MAX_BADGES)throw Error('Limite de 500 badges atteinte. Exporte puis trie ton historique.');found={uidHex:clean,label:'Badge '+(entries.length+1),seenAt:now};entries.unshift(found);}
+ selected=found;persistEntries();render();state((source==='nfc'?'Badge NFC compatible lu':'Identifiant ajouté')+' : '+clean);
+}
+async function copy(value){
+ if(!selected){state('Sélectionne un badge avant de copier.');return;}
+ try{
+  if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(value);
+  else {const t=document.createElement('textarea');t.value=value;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.append(t);t.select();const done=document.execCommand('copy');t.remove();if(!done)throw Error('Copie refusée');}
+  state('Identifiant copié dans le presse-papiers.');
+ }catch(e){state('Copie impossible ici : sélectionne directement le texte du format.');}
+}
+function stop(){if(aborter){aborter.abort();aborter=null;}reader=null;$('stopScan').style.display='none';$('startScan').disabled=!canScan();}
+function canScan(){return window.isSecureContext&&'NDEFReader' in window;}
+async function start(){
+ if(!canScan()){state('Web NFC non disponible : utilise Chrome Android en HTTPS ou l’APK native.');return;}
+ stop();
+ aborter=new AbortController();reader=new NDEFReader();
+ reader.addEventListener('reading',event=>{
+  if(!event.serialNumber){state('Tag NDEF détecté, mais son UID n’est pas exposé par le navigateur. Essaie l’APK Android.');return;}
+  try{add(event.serialNumber,'nfc');}catch(e){state('Lecture NFC : '+e.message);}
+ });
+ reader.addEventListener('readingerror',()=>state('Tag détecté mais lecture NDEF impossible. L’APK Android peut être nécessaire.'));
+ try{await reader.scan({signal:aborter.signal});$('startScan').disabled=true;$('stopScan').style.display='inline-block';state('Scan NFC actif : approche une étiquette NDEF compatible.');}
+ catch(e){stop();if(e.name!=='AbortError')state('Impossible de démarrer Web NFC : '+e.name+'. Vérifie HTTPS, autorisation et compatibilité.');}
+}
+$('startScan').addEventListener('click',start);
+$('stopScan').addEventListener('click',()=>{stop();state('Scan NFC arrêté.');});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+$('addManual').addEventListener('click',()=>{try{add($('manualHex').value,'manual');$('manualHex').value='';}catch(e){state(e.message);}});
+$('saveName').addEventListener('click',()=>{
+ if(!selected){state('Sélectionne un badge.');return;}
+ const label=$('badgeName').value.trim();if(label.length<1||label.length>80){state('Le nom doit compter 1 à 80 caractères.');return;}
+ selected.label=label;persistEntries();render();state('Nom du badge enregistré.');
+});
+document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>{const key=b.getAttribute('data-copy');if(selected)copy(four(selected.uidHex)[key]);else state('Sélectionne un badge.');}));
+$('copyAll').addEventListener('click',()=>{
+ if(!selected){state('Sélectionne un badge.');return;}
+ const f=four(selected.uidHex);copy('UID HEX : '+f.hex+'\nUID DÉCIMAL : '+f.decimal+'\nHEX INVERSÉ : '+f.reverseHex+'\nDÉCIMAL INVERSÉ : '+f.reverseDecimal);
+});
+$('speak').addEventListener('click',()=>{
+ if(!selected){state('Sélectionne un badge.');return;}
+ if(!('speechSynthesis' in window)){state('Synthèse vocale non disponible.');return;}
+ const f=four(selected.uidHex),say=new SpeechSynthesisUtterance('Badge '+selected.label+'. Hexadécimal '+f.hex.split('').join(' ')+'. Décimal '+f.decimal.split('').join(' '));say.lang='fr-FR';speechSynthesis.cancel();speechSynthesis.speak(say);
+});
+$('export').addEventListener('click',()=>{
+ const text=JSON.stringify(backup(),null,2),file=new Blob([text],{type:'application/json'}),link=document.createElement('a');
+ const url=URL.createObjectURL(file);link.href=url;link.download='FabNFC-sauvegarde.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);state('Sauvegarde JSON exportée.');
+});
+$('import').addEventListener('change',async event=>{
+ const file=event.target.files&&event.target.files[0];if(!file)return;
+ try{
+  if(file.size>MAX_BYTES)throw Error('Fichier supérieur à 1 Mo');
+  const incoming=parse(await file.text()),existing=new Set(entries.map(e=>e.uidHex));
+  const extra=incoming.filter(e=>!existing.has(e.uidHex));
+  if(entries.length+extra.length>MAX_BADGES)throw Error('Import impossible : plus de 500 badges au total');
+  entries=entries.concat(extra);persistEntries();render();state('Import réussi : '+extra.length+' nouveau(x) badge(s), anciens conservés.');
+ }catch(e){state('Import non réalisé : '+e.message);}finally{event.target.value='';}
+});
+$('erase').addEventListener('click',()=>{if(!entries.length)return;if(!confirm('Effacer tous les badges locaux ? Exporte une sauvegarde avant si nécessaire.'))return;entries=[];selected=null;persistEntries();render();state('Historique local effacé.');});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvent=e;$('install').style.display='inline-block';});
+$('install').addEventListener('click',async()=>{if(!installEvent)return;installEvent.prompt();await installEvent.userChoice;installEvent=null;$('install').style.display='none';});
+if(location.protocol==='https:'||location.hostname==='localhost'){
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+$('scanHelp').textContent=canScan()?'Web NFC est disponible. Le premier scan demandera une autorisation.':'Le scan Web NFC nécessite Chrome sur Android, une page HTTPS ou localhost, et un badge NDEF compatible. Depuis un fichier HTML local, la gestion des fiches reste utilisable hors ligne.';
+$('startScan').disabled=!canScan();restore();if(entries.length)selected=entries[0];render();
+})();
+</script>
+</body>
+</html>

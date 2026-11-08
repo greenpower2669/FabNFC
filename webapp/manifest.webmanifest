@@ -1,0 +1,15 @@
+{
+  "name": "FabNFC Web — hors ligne",
+  "short_name": "FabNFC",
+  "description": "Gestion locale d'UID NFC et lecture NDEF compatible",
+  "lang": "fr",
+  "start_url": "./FabNFC-Web-hors-ligne.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f8fa",
+  "theme_color": "#0c2637",
+  "icons": [
+    {"src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
