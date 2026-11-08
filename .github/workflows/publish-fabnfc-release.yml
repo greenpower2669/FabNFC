@@ -1,0 +1,98 @@
+name: FabNFC - Publier Android et Web hors ligne
+
+# Workflow de distribution uniquement : ne fusionne ni la branche Android ni la PWA.
+# Publie les binaires verifies depuis un commit precis de la branche web.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/publish-fabnfc-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fabnfc-preview-release-v0.2.0
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Charger le commit valide de la branche de travail
+        uses: actions/checkout@v4
+        with:
+          ref: 2fd226d4e29fa4e910089366773073f0bda38754
+          persist-credentials: false
+
+      - name: Verifier APK et assembler les livrables web
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s temp/FabNFC-v0.1.0-debug.apk
+          sha256sum -c temp/FabNFC-v0.1.0-debug.apk.sha256
+          unzip -t temp/FabNFC-v0.1.0-debug.apk > /dev/null
+          test -s webapp/FabNFC-Web-hors-ligne.html
+          python3 -m json.tool webapp/manifest.webmanifest > /dev/null
+          mkdir -p dist
+          cp temp/FabNFC-v0.1.0-debug.apk dist/FabNFC-v0.1.0-debug.apk
+          cp webapp/FabNFC-Web-hors-ligne.html dist/FabNFC-Web-v0.2.0-hors-ligne.html
+          (cd webapp && zip -q -9 ../dist/FabNFC-Web-v0.2.0-PWA.zip FabNFC-Web-hors-ligne.html manifest.webmanifest sw.js icon.svg icon-192.png icon-512.png README.md)
+          unzip -t dist/FabNFC-Web-v0.2.0-PWA.zip > /dev/null
+          (cd dist && sha256sum FabNFC-v0.1.0-debug.apk FabNFC-Web-v0.2.0-hors-ligne.html FabNFC-Web-v0.2.0-PWA.zip > SHA256SUMS.txt)
+          test -s dist/SHA256SUMS.txt
+          ls -lh dist/
+
+      - name: Publier la prerelease GitHub avec fichiers directs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='fabnfc-v0.2.0-preview'
+          REPO='${{ github.repository }}'
+          SHA='2fd226d4e29fa4e910089366773073f0bda38754'
+          if gh release view "$TAG" --repo "$REPO" > /dev/null 2>&1; then
+            echo 'La release existe deja. Refus d ecraser sans verification explicite.' >&2
+            exit 1
+          fi
+          cat > /tmp/fabnfc-release-notes.md <<'RELEASE_NOTES'
+          # FabNFC — Android et Web v0.2.0 preview
+
+          Deux distributions separées, avec sauvegardes JSON schema 1 compatibles :
+
+          - **Android** : `FabNFC-v0.1.0-debug.apk` est un APK natif de test autonome, non ZIP, avec lecture UID NFC brute sur Android, copie/voix/historique. Ce n'est pas un APK de production signe avec une cle de distribution. Son empreinte a ete verifiee contre le fichier publie en octobre.
+          - **Web local** : `FabNFC-Web-v0.2.0-hors-ligne.html`, fichier autonome ouvrable hors ligne pour conversions, historique, copies et import/export. La lecture NFC n'est pas disponible en mode `file://`.
+          - **Web PWA** : `FabNFC-Web-v0.2.0-PWA.zip`, sources a heberger en HTTPS pour une installation PWA. Le scan navigateur Web NFC concerne seulement les tags NDEF compatibles, et ne remplace pas l'APK Android pour les badges Vigik.
+          - **SHA256SUMS.txt** : empreintes d'integrite des trois livrables.
+
+          **Attention** : pas encore de test reel de l'APK/PWA sur Samsung et aucun lien avec les codes provisoires AGESCA n'est garanti. Cette release est une preversion de validation ; elle ne fusionne pas les branches dans `main`.
+          RELEASE_NOTES
+          gh release create "$TAG" \
+            dist/FabNFC-v0.1.0-debug.apk \
+            dist/FabNFC-Web-v0.2.0-hors-ligne.html \
+            dist/FabNFC-Web-v0.2.0-PWA.zip \
+            dist/SHA256SUMS.txt \
+            --repo "$REPO" \
+            --target "$SHA" \
+            --title 'FabNFC Android + Web v0.2.0 (preview)' \
+            --notes-file /tmp/fabnfc-release-notes.md \
+            --prerelease
+
+      - name: Verifier la disponibilite reelle des assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REPO='${{ github.repository }}'
+          TAG='fabnfc-v0.2.0-preview'
+          gh release view "$TAG" --repo "$REPO" --json tagName,assets,url > /tmp/fabnfc-published.json
+          jq -e '.tagName == "fabnfc-v0.2.0-preview"' /tmp/fabnfc-published.json
+          for name in FabNFC-v0.1.0-debug.apk FabNFC-Web-v0.2.0-hors-ligne.html FabNFC-Web-v0.2.0-PWA.zip SHA256SUMS.txt; do
+            jq -e --arg name "$name" '.assets | any(.name == $name and .size > 0)' /tmp/fabnfc-published.json
+          done
+          cat /tmp/fabnfc-published.json
